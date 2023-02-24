@@ -1,0 +1,48 @@
+#root {
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+form {
+  display: flex;
+  gap: 2em;
+  flex-direction: column;
+  padding: 10px;
+  margin: auto;
+}
+
+input,
+select {
+  border: none;
+  border-bottom: 1px solid #ddd;
+  width: 220px;
+  margin-left: 100px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-bottom: 1px solid #000;
+}
+
+.generar-lista {
+  margin: auto;
+  max-width: 250px;
+}
+
+.bar-container {
+  display: flex;
+  align-items: end;
+  border-bottom: 1px solid black;
+  max-width: 100vh;
+  min-height: 200px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.estadisticas {
+  display: flex;
+  gap: 2em;
+  justify-content: center;
+}
