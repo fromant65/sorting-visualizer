@@ -9,8 +9,13 @@ function App() {
   const [sortingTimes, setSortingTimes] = useState([]);
   const [comparisonCount, setComparisonCount] = useState(0);
   const [comparisonTimes, setComparisonTimes] = useState([]);
+  const [stack, setStack] = useState([]);
+
   useEffect(() => {
-    let sortedArray, comparisons;
+    let sortedArray = [],
+      comparisons,
+      newStack = [];
+
     switch (algoritmo) {
       case "Bubble Sort":
         [sortedArray, comparisons] = bubbleSortArray(array, isSorting);
@@ -21,19 +26,27 @@ function App() {
       case "Insertion Sort":
         [sortedArray, comparisons] = insertionSortArray(array, isSorting);
         break;
+      case "Quick Sort":
+        [sortedArray, newStack, comparisons] = quickSortArray(
+          array,
+          stack,
+          isSorting
+        );
+        break;
       default:
         break;
     }
-
     setTimeout(() => {
       if (sortedArray === true || !array.length || isSorting === -1) {
         if (sortedArray === true && isSorting != -1) {
           setSortingTimes([...sortingTimes, isSorting]);
           setComparisonTimes([...comparisonTimes, comparisonCount]);
-          setIsSorting(-1);
           setComparisonCount(0);
         }
         return;
+      }
+      if (algoritmo === "Quick Sort") {
+        setStack(newStack);
       }
       setArray(sortedArray);
       setIsSorting(isSorting + 1);
@@ -45,7 +58,10 @@ function App() {
     <div className="App">
       <form
         id="array-setter"
-        onSubmit={(e) => setArray(randomizeArray(e, longitud))}
+        onSubmit={(e) => {
+          setArray(randomizeArray(e, longitud));
+          setIsSorting(-1);
+        }}
       >
         <div>
           <label htmlFor="number">Ingrese el largo del array</label>
@@ -68,6 +84,7 @@ function App() {
             <option value="Bubble Sort">Bubble Sort</option>
             <option value="Selection Sort">Selection Sort</option>
             <option value="Insertion Sort">Insertion Sort</option>
+            <option value="Quick Sort">Quick Sort</option>
           </select>
         </div>
 
@@ -177,8 +194,48 @@ function insertionSortArray(array, iteration) {
     j -= 1;
   }
   if (iteration === array.length - 1) return [true, 0];
-
   return [array, contadorComparaciones];
+}
+
+function quickSortArray(arr, stack, it) {
+  // Creamos un stack para almacenar los sub-arrays a ordenar
+  if (it === -1) {
+    stack.push(0);
+    stack.push(arr.length - 1);
+  }
+  // Mientras haya sub-arrays en el stack, los vamos dividiendo y ordenando
+  if (stack.length > 0) {
+    const high = stack.pop();
+    const low = stack.pop();
+    const [pivotIndex, comparaciones] = partition(arr, low, high);
+    if (pivotIndex - 1 > low) {
+      stack.push(low);
+      stack.push(pivotIndex - 1);
+    }
+    if (pivotIndex + 1 < high) {
+      stack.push(pivotIndex + 1);
+      stack.push(high);
+    }
+    return [arr, stack, comparaciones];
+  } else {
+    console.log("finish");
+    return [true, [], 0];
+  }
+}
+
+function partition(arr, low, high) {
+  const pivot = arr[high];
+  let i = low - 1;
+
+  for (let j = low; j < high; j++) {
+    if (arr[j] < pivot) {
+      i++;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+  return [i + 1, high - low];
 }
 
 export default App;
