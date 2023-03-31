@@ -102,7 +102,7 @@ function App() {
               style={{
                 width: "20px",
                 height: `${(element * 300) / longitud}px`,
-                margin: "1px",
+                margin: longitud > 200 ? "0px" : "1px",
                 background: element === i + 1 ? "#0f0" : "#f00",
               }}
             ></div>
