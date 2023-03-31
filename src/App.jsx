@@ -42,6 +42,7 @@ function App() {
           setSortingTimes([...sortingTimes, isSorting]);
           setComparisonTimes([...comparisonTimes, comparisonCount]);
           setComparisonCount(0);
+          toggleGenerarLista();
         }
         return;
       }
@@ -54,6 +55,23 @@ function App() {
     }, 1000 / longitud);
   }, [isSorting, array]);
 
+  function toggleGenerarLista() {
+    const generarLista = document.querySelector(".generar-lista");
+    generarLista.disabled = !generarLista.disabled;
+  }
+
+  function enableOrdenar() {
+    if (longitud > 0) {
+      const sortButton = document.querySelector(".sort-button");
+      sortButton.disabled = false;
+    }
+  }
+
+  function disableOrdenar() {
+    const sortButton = document.querySelector(".sort-button");
+    sortButton.disabled = true;
+  }
+
   return (
     <div className="App">
       <form
@@ -61,6 +79,7 @@ function App() {
         onSubmit={(e) => {
           setArray(randomizeArray(e, longitud));
           setIsSorting(-1);
+          enableOrdenar();
         }}
       >
         <div>
@@ -109,7 +128,16 @@ function App() {
           );
         })}
       </div>
-      <button onClick={(e) => setIsSorting(0)}>Ordenar!</button>
+      <button
+        className="sort-button"
+        onClick={(e) => {
+          setIsSorting(0);
+          toggleGenerarLista();
+          disableOrdenar();
+        }}
+      >
+        Ordenar!
+      </button>
       {/*
         <div className="iteraciones">
           Iteraciones: {isSorting === -1 ? 0 : isSorting}
