@@ -1,14 +1,26 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-
+import bubbleSortArray from "./functions/bubble";
+import selectionSortArray from "./functions/selection";
+import insertionSortArray from "./functions/insertion";
+import quickSortArray from "./functions/quick";
+import randomizeArray from "./functions/random";
 function App() {
+  //Array a ordenar
   const [array, setArray] = useState([]);
+  //Algoritmo de ordenamiento elegido
   const [algoritmo, setAlgoritmo] = useState("Bubble Sort");
+  //Longitud del array
   const [longitud, setLongitud] = useState(0);
+  //Cantidad de iteraciones (llamadas a la funcion de ordenamiento)
   const [isSorting, setIsSorting] = useState(-1);
+  //Historial de la cantidad de iteraciones de cada ordenamiento de la sesión
   const [sortingTimes, setSortingTimes] = useState([]);
+  //Cantidad de comparaciones hechas en el ordenamiento actual
   const [comparisonCount, setComparisonCount] = useState(0);
+  //Historial del cantidad de comparaciones de cada ordenamiento de la sesión
   const [comparisonTimes, setComparisonTimes] = useState([]);
+  //Stack para ordenamientos recursivos
   const [stack, setStack] = useState([]);
 
   useEffect(() => {
@@ -38,11 +50,15 @@ function App() {
     }
     setTimeout(() => {
       if (sortedArray === true || !array.length || isSorting === -1) {
+        //Este if se ejecuta si el array está ordenado, si está recien generado o si no está generado
+
         if (sortedArray === true && isSorting != -1) {
+          //Este if se ejecuta cuando el array ya está ordenado
           setSortingTimes([...sortingTimes, isSorting]);
           setComparisonTimes([...comparisonTimes, comparisonCount]);
           setComparisonCount(0);
           toggleGenerarLista();
+          enableInputs();
         }
         return;
       }
@@ -70,6 +86,20 @@ function App() {
   function disableOrdenar() {
     const sortButton = document.querySelector(".sort-button");
     sortButton.disabled = true;
+  }
+
+  function enableInputs() {
+    const quantityInput = document.getElementById("number");
+    const algorithmInput = document.getElementById("algoritmo");
+    quantityInput.disabled = false;
+    algorithmInput.disabled = false;
+  }
+
+  function disableInputs() {
+    const quantityInput = document.getElementById("number");
+    const algorithmInput = document.getElementById("algoritmo");
+    quantityInput.disabled = true;
+    algorithmInput.disabled = true;
   }
 
   return (
@@ -134,14 +164,11 @@ function App() {
           setIsSorting(0);
           toggleGenerarLista();
           disableOrdenar();
+          disableInputs();
         }}
       >
         Ordenar!
       </button>
-      {/*
-        <div className="iteraciones">
-          Iteraciones: {isSorting === -1 ? 0 : isSorting}
-        </div>*/}
 
       <div className="estadisticas">
         <div className="tiempos-ordenamiento">
@@ -159,111 +186,6 @@ function App() {
       </div>
     </div>
   );
-}
-
-function randomizeArray(e, longitud) {
-  e.preventDefault();
-  let sortedArray = [];
-  let unsortedArray = [];
-  for (let i = 0; i < longitud; i++) {
-    sortedArray.push(i + 1);
-  }
-  for (let i = 0; i < longitud; i++) {
-    let randomIndex = Math.floor(Math.random() * sortedArray.length);
-    let x = sortedArray.splice(randomIndex, 1);
-    if (i === 0) unsortedArray[0] = x[0];
-    else unsortedArray.push(x[0]);
-  }
-  return unsortedArray;
-}
-
-function bubbleSortArray(array, iteration) {
-  let i; //Cantidad de comparaciones en esta iteración
-  let swap = false;
-  for (i = 0; i < array.length - iteration; i++) {
-    if (array[i] > array[i + 1]) {
-      let x = array[i];
-      array[i] = array[i + 1];
-      array[i + 1] = x;
-      swap = true;
-    }
-  }
-  if (swap) return [array, i];
-  else return [true, i];
-}
-
-function selectionSortArray(array, iteration) {
-  let minIndex, minValue;
-  if (iteration === -1) return [array, iteration + 1];
-  let i; //Cantidad de comparaciones en esta iteración
-  for (i = iteration; i < array.length; i++) {
-    if (iteration === array.length - 1) return [true, 0];
-    if (i === iteration || array[i] < minValue) {
-      minValue = array[i];
-      minIndex = i;
-    }
-  }
-  let aux = array[minIndex];
-  array[minIndex] = array[iteration];
-  array[iteration] = aux;
-  return [array, i - iteration];
-}
-
-function insertionSortArray(array, iteration) {
-  //let j = iteration + 2;
-  iteration = iteration < 1 ? 1 : iteration;
-  let j = iteration;
-  let contadorComparaciones = 0;
-  while (j > 0 && array[j - 1] > array[j] && j < array.length) {
-    contadorComparaciones++;
-    let aux = array[j];
-    array[j] = array[j - 1];
-    array[j - 1] = aux;
-    j -= 1;
-  }
-  if (iteration === array.length - 1) return [true, 0];
-  return [array, contadorComparaciones];
-}
-
-function quickSortArray(arr, stack, it) {
-  // Creamos un stack para almacenar los sub-arrays a ordenar
-  if (it === -1) {
-    stack.push(0);
-    stack.push(arr.length - 1);
-  }
-  // Mientras haya sub-arrays en el stack, los vamos dividiendo y ordenando
-  if (stack.length > 0) {
-    const high = stack.pop();
-    const low = stack.pop();
-    const [pivotIndex, comparaciones] = partition(arr, low, high);
-    if (pivotIndex - 1 > low) {
-      stack.push(low);
-      stack.push(pivotIndex - 1);
-    }
-    if (pivotIndex + 1 < high) {
-      stack.push(pivotIndex + 1);
-      stack.push(high);
-    }
-    return [arr, stack, comparaciones];
-  } else {
-    console.log("finish");
-    return [true, [], 0];
-  }
-}
-
-function partition(arr, low, high) {
-  const pivot = arr[high];
-  let i = low - 1;
-
-  for (let j = low; j < high; j++) {
-    if (arr[j] < pivot) {
-      i++;
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-  }
-
-  [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
-  return [i + 1, high - low];
 }
 
 export default App;
